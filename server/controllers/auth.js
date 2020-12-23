@@ -25,6 +25,7 @@ exports.signIn = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
+        educator: user.educator,
       },
     });
   } catch (err) {

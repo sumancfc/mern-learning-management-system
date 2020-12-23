@@ -2,22 +2,18 @@ import React, { useEffect, useState } from "react";
 import Form from "react-bootstrap/Form";
 import Jumbotron from "react-bootstrap/Jumbotron";
 import Button from "react-bootstrap/Button";
-import Image from "react-bootstrap/Image";
 import { getUserById, updateUser } from "../../api/user";
 import { Redirect } from "react-router-dom";
 import auth from "../../helpers/auth";
-import profileImage from "../../assets/images/banner-1.png";
 
 const EditUser = ({ match }) => {
   const [values, setValues] = useState({
     name: "",
     email: "",
     password: "",
-    about: "",
-    photo: "",
     error: "",
-    id: "",
     redirectToProfile: false,
+    educator: false,
   });
 
   const jwt = auth.isAuthenticated();
@@ -36,7 +32,7 @@ const EditUser = ({ match }) => {
             id: data._id,
             name: data.name,
             email: data.email,
-            about: data.about,
+            educator: data.educator,
           });
         }
       }
@@ -50,12 +46,12 @@ const EditUser = ({ match }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    let userData = new FormData();
-    values.name && userData.append("name", values.name);
-    values.email && userData.append("email", values.email);
-    values.passoword && userData.append("passoword", values.passoword);
-    values.about && userData.append("about", values.about);
-    values.photo && userData.append("photo", values.photo);
+    const user = {
+      name: values.name || undefined,
+      email: values.email || undefined,
+      password: values.password || undefined,
+      educator: values.educator,
+    };
 
     updateUser(
       {
@@ -64,12 +60,14 @@ const EditUser = ({ match }) => {
       {
         t: jwt.token,
       },
-      userData
+      user
     ).then((data) => {
       if (data && data.error) {
         setValues({ ...values, error: data.error });
       } else {
-        setValues({ ...values, redirectToProfile: true });
+        auth.updateUser(data, () => {
+          setValues({ ...values, userId: data._id, redirectToProfile: true });
+        });
       }
     });
   };
@@ -79,9 +77,9 @@ const EditUser = ({ match }) => {
     setValues({ ...values, [name]: value });
   };
 
-  const photoUrl = values.id
-    ? `/api/user/photo/${values.id}?${new Date().getTime()}`
-    : profileImage;
+  const handleCheck = (event, checked) => {
+    setValues({ ...values, educator: checked });
+  };
 
   if (values.redirectToProfile) {
     return <Redirect to={"/user/" + values.id} />;
@@ -96,15 +94,6 @@ const EditUser = ({ match }) => {
 
       <p>{values.error && values.error}</p>
       <Form onSubmit={handleSubmit}>
-        <Image src={photoUrl} roundedCircle className='w-25' />
-        <Form.Group>
-          <Form.File
-            id='icon-button-file'
-            accept='image/*'
-            onChange={handleChange("photo")}
-          />
-        </Form.Group>
-
         <Form.Group>
           <Form.Label>Name</Form.Label>
           <Form.Control
@@ -135,19 +124,6 @@ const EditUser = ({ match }) => {
         </Form.Group>
 
         <Form.Group>
-          <Form.Label>About</Form.Label>
-          <Form.Control
-            type='text'
-            placeholder='Enter about'
-            id='about'
-            name='about'
-            value={values.about}
-            onChange={handleChange("about")}
-            required
-          />
-        </Form.Group>
-
-        <Form.Group>
           <Form.Label>Password</Form.Label>
           <Form.Control
             type='password'
@@ -157,6 +133,16 @@ const EditUser = ({ match }) => {
             value={values.password}
             onChange={handleChange("password")}
             required
+          />
+        </Form.Group>
+        <Form.Group>
+          <Form.Label>I am a Tutor</Form.Label>
+          <Form.Check
+            type='switch'
+            // id='custom-switch'
+            label={values.educator ? "Yes" : "No"}
+            checked={values.educator}
+            onChange={handleCheck}
           />
         </Form.Group>
 

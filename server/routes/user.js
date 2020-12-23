@@ -10,10 +10,7 @@ const {
   getUser,
   updateUser,
   deleteUser,
-  photo,
 } = require("../controllers/user");
-
-router.route("/user/photo/:userId").get(photo);
 
 router.route("/user/signup").post(createUser);
 router.route("/users").get(getUsers);

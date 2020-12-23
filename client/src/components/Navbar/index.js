@@ -9,8 +9,19 @@ const isActive = (history, path) => {
   else return { color: "#ffffff" };
 };
 
-const NavbarItem = withRouter(({ history, match }) => {
-  const userId = match.params;
+const partIsActive = (history, path) => {
+  if (history.location.pathname.includes(path))
+    return { color: "#fffde7", backgroundColor: "#f57c00", marginRight: 10 };
+  else
+    return {
+      color: "#616161",
+      backgroundColor: "#fffde7",
+      border: "1px solid #f57c00",
+      marginRight: 10,
+    };
+};
+
+const NavbarItem = withRouter(({ history }) => {
   return (
     <>
       <Navbar bg='dark' variant='dark'>
@@ -37,15 +48,18 @@ const NavbarItem = withRouter(({ history, match }) => {
               </Link>
             </>
           )}
-          <Link
-            to='/users'
-            className='nav-link'
-            style={isActive(history, "/users")}
-          >
-            Users
-          </Link>
+
           {auth.isAuthenticated() && (
             <>
+              {auth.isAuthenticated().user.educator && (
+                <Link
+                  to='/teach/courses'
+                  style={partIsActive(history, "/teach/")}
+                >
+                  <button className='btn btn-primary'>Teach</button>
+                </Link>
+              )}
+
               <Link
                 to={"/user/" + auth.isAuthenticated().user._id}
                 className='nav-link'
