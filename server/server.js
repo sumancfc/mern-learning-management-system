@@ -13,6 +13,7 @@ const app = express();
 const userRoutes = require("./routes/user");
 const authRoutes = require("./routes/auth");
 const courseRoutes = require("./routes/course");
+const enrollmentRoutes = require("./routes/enrollment");
 
 //database connection
 mongoose.Promise = global.Promise;
@@ -43,6 +44,7 @@ app.use(cors());
 app.use("/api", userRoutes);
 app.use("/api", authRoutes);
 app.use("/api", courseRoutes);
+app.use("/api", enrollmentRoutes);
 
 //error middleware
 app.use((err, req, res, next) => {
