@@ -91,3 +91,15 @@ exports.deleteUser = async (req, res) => {
     });
   }
 };
+
+//is educator
+exports.isEducator = (req, res, next) => {
+  const isInstructor = req.profile && req.profile.educator;
+
+  if (!isInstructor) {
+    return res.status(403).json({
+      error: "User is not educator",
+    });
+  }
+  next();
+};
